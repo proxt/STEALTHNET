@@ -381,10 +381,11 @@ sudo caddy run
 ### 5. Запуск в продакшене
 
 #### Flask API (Gunicorn)
-
+gunicorn --workers 3 --bind 127.0.0.1:5000 app:app --daemon
 
 # запустите вручную
-gunicorn -c config/gunicorn_config.py app:app
+
+
 ```
 
 Подробнее: [docs/GUNICORN_SETUP.md](docs/GUNICORN_SETUP.md)
@@ -521,6 +522,7 @@ STEALTHNET-Admin-Panel/
 ---
 
 **StealthNET VPN** — Ваша свобода в цифровом мире 🛡️
+
 
 
 
