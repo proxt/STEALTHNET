@@ -1,4 +1,4 @@
-version: '3.8'
+
 
 services:
   # Flask API сервер
@@ -15,11 +15,16 @@ services:
       - ./cache:/app/cache
       - ./logs:/app/logs
       - ./.env:/app/.env
+      - ./frontend/build:/var/www/stealthnet-client/build:ro
     working_dir: /app
     environment:
       - FLASK_ENV=production
     networks:
       - stealthnet-network
+    # Настройки сети для доступа к внешним SMTP серверам
+    dns:
+      - 8.8.8.8
+      - 8.8.4.4
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:5000/api/public/health"]
       interval: 30s
