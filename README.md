@@ -203,7 +203,7 @@ Telegram бот для клиентов с полным функционалом
 2. **Клонируйте проект**:
    ```bash
    cd /opt
-   git clone https://github.com/GOFONCK/STEALTHNET-Admin-Panel.git
+   git clone https://github.com/GOFONCK/remnawave-STEALTHNET-Panel.git
    cd STEALTHNET-Admin-Panel
    ```
 
