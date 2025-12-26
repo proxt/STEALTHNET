@@ -92,3 +92,4 @@ echo "🚀 Запуск приложения..."
 echo ""
 exec python3 app.py
 
+
