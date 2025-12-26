@@ -19,6 +19,7 @@ services:
     working_dir: /app
     environment:
       - FLASK_ENV=production
+      - SQLALCHEMY_DATABASE_URI=sqlite:////app/instance/stealthnet.db
     networks:
       - stealthnet-network
     healthcheck:
@@ -64,5 +65,6 @@ services:
 networks:
   stealthnet-network:
     driver: bridge
+
 
 
