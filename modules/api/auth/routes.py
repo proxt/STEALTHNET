@@ -23,6 +23,8 @@ from modules.auth import create_local_jwt
 from modules.models.user import User
 from modules.models.system import SystemSetting
 from modules.models.referral import ReferralSetting
+from modules.models.branding import BrandingSetting
+from modules.models.bot_config import BotConfig
 
 app = get_app()
 db = get_db()
@@ -164,6 +166,10 @@ def public_register():
 
         verif_token = ''.join(random.choices(string.ascii_letters + string.digits, k=50))
         sys_settings = get_system_settings() or create_system_settings()
+        
+        if not sys_settings:
+            print(f"Register Error: Failed to get or create system settings")
+            return jsonify({"message": "Internal Server Error"}), 500
 
         new_user = User(
             email=email, password_hash=hashed_password, remnawave_uuid=remnawave_uuid,
@@ -186,17 +192,28 @@ def public_register():
             print(f"Error sending new user notification: {e}")
 
         # Отправка email
-        your_server_ip = os.getenv('YOUR_SERVER_IP') or os.getenv('YOUR_SERVER_IP_OR_DOMAIN')
-        if your_server_ip:
-            your_server_ip = your_server_ip.strip()
-            if not your_server_ip.startswith(('http://', 'https://')):
-                your_server_ip = f"https://{your_server_ip}"
-        else:
-            your_server_ip = "https://testpanel.stealthnet.app"
+        try:
+            your_server_ip = os.getenv('YOUR_SERVER_IP') or os.getenv('YOUR_SERVER_IP_OR_DOMAIN')
+            if your_server_ip:
+                your_server_ip = your_server_ip.strip()
+                if not your_server_ip.startswith(('http://', 'https://')):
+                    your_server_ip = f"https://{your_server_ip}"
+            else:
+                your_server_ip = "https://testpanel.stealthnet.app"
 
-        url = f"{your_server_ip}/verify?token={verif_token}"
-        html = render_template('email_verification.html', verification_url=url)
-        threading.Thread(target=send_email_in_background, args=(app.app_context(), email, "Подтвердите email", html)).start()
+            url = f"{your_server_ip}/verify?token={verif_token}"
+            # Получаем branding и service_name для шаблона
+            branding = BrandingSetting.query.first()
+            bot_config = BotConfig.query.first()
+            service_name = bot_config.service_name if bot_config else (branding.site_name if branding else "StealthNET")
+            html = render_template('email_verification.html', 
+                                 verification_url=url,
+                                 branding=branding,
+                                 service_name=service_name)
+            threading.Thread(target=send_email_in_background, args=(app.app_context(), email, "Подтвердите email", html)).start()
+        except Exception as e:
+            print(f"Error preparing email: {e}")
+            # Не прерываем регистрацию из-за ошибки email
 
         # Бонус рефереру
         if referrer:
@@ -217,9 +234,14 @@ def public_register():
 
     except requests.exceptions.HTTPError as e:
         print(f"HTTP Error: {e}")
+        import traceback
+        traceback.print_exc()
         return jsonify({"message": "Provider error"}), 500
     except Exception as e:
         print(f"Register Error: {e}")
+        import traceback
+        traceback.print_exc()
+        db.session.rollback()
         return jsonify({"message": "Internal Server Error"}), 500
 
 
@@ -394,7 +416,14 @@ def resend_verification():
                 your_server_ip = "https://testpanel.stealthnet.app"
 
             url = f"{your_server_ip}/verify?token={user.verification_token}"
-            html = render_template('email_verification.html', verification_url=url)
+            # Получаем branding и service_name для шаблона
+            branding = BrandingSetting.query.first()
+            bot_config = BotConfig.query.first()
+            service_name = bot_config.service_name if bot_config else (branding.site_name if branding else "StealthNET")
+            html = render_template('email_verification.html', 
+                                 verification_url=url,
+                                 branding=branding,
+                                 service_name=service_name)
             threading.Thread(target=send_email_in_background, args=(app.app_context(), email, "Verify Email", html)).start()
 
         return jsonify({"message": "Sent"}), 200
