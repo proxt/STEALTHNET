@@ -792,6 +792,10 @@ def purchase_with_balance():
         if t.traffic_limit_bytes and t.traffic_limit_bytes > 0:
             patch_payload["trafficLimitBytes"] = t.traffic_limit_bytes
             patch_payload["trafficLimitStrategy"] = "NO_RESET"
+            
+             # Устанавливаем лимит устройств, если он указан в тарифе
+        if hasattr(t, 'hwid_device_limit') and t.hwid_device_limit is not None and t.hwid_device_limit > 0:
+            patch_payload["hwidDeviceLimit"] = t.hwid_device_limit
         
         h, c = get_remnawave_headers({"Content-Type": "application/json"})
         patch_resp = requests.patch(f"{API_URL}/api/users", headers=h, cookies=c, json=patch_payload, timeout=10)
