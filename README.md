@@ -264,7 +264,7 @@ Telegram бот для клиентов с полным функционалом
 ## 📁 Структура проекта
 
 ```
-STEALTHNET-Admin-Panel/
+remnawave-STEALTHNET-Panel/
 ├── app.py                          # Flask API сервер
 ├── client_bot.py                   # Telegram бот
 ├── requirements.txt                # Зависимости для API

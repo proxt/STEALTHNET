@@ -31,7 +31,7 @@ docker compose version
 ```bash
 cd /opt
 git clone https://github.com/GOFONCK/remnawave-STEALTHNET-Panel.git
-cd STEALTHNET-Admin-Panel
+cd remnawave-STEALTHNET-Panel
 ```
 
 ### 3. Настройте переменные окружения
